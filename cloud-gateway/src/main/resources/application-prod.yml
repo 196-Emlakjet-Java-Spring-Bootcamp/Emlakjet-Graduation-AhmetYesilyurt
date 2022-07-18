@@ -1,0 +1,66 @@
+rabbitmq:
+    exchange: emlakjet.exchange
+    queue: emlakjet.queue
+    routingkey: emlakjet.routingkey
+server:
+    port: 8080
+spring:
+    cloud:
+        gateway:
+            routes:
+                - id: emlakjet
+                  uri: 'http://emlakjet-service:8081/'
+                  filters:
+                      - StripPrefix=1
+                  predicates:
+                      - Path=/advert-api/**
+
+                - id: banner-service
+                  uri: 'http://emlakjet-banner-service:8082/'
+                  filters:
+                      - StripPrefix=1
+                  predicates:
+                      - Path=/banner-api/**
+
+                - id: report-service
+                  uri: 'http://emlakjet-report-service:8083/'
+                  filters:
+                      - StripPrefix=1
+                      - RoleAuth=CORPORATE
+                  predicates:
+                      - Path=/report-api/**
+
+                - id: admin-service
+                  uri: 'http://emlakjet-admin-service:8084/'
+                  filters:
+                      - StripPrefix=1
+                      - RoleAuth=CORPORATE
+                  predicates:
+                      - Path=/admin-api/**
+
+    datasource:
+        password: password
+        url: jdbc:postgresql://pg-database-service:5432/emlakjet
+        username: postgres
+    jackson:
+        serialization:
+            fail-on-empty-beans: false
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQL81Dialect
+                format_sql: true
+        show-sql: true
+    main:
+        allow-bean-definition-overriding: true
+    rabbitmq:
+        host: localhost
+        password: guest
+        port: 5672
+        username: guest
+
+
+
+

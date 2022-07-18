@@ -1,0 +1,58 @@
+version: "3.9"
+services:
+  pg-database-service:
+    image: postgres
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=emlakjet
+    ports:
+      - "5432:5432"
+  rabbit-mq-service:
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  emlakjet-admin-service:
+    build: ./admin-service/
+    ports:
+      - "8084:8084"
+    depends_on:
+      - pg-database-service
+      - rabbit-mq-service
+  emlakjet-report-service:
+    build: ./report-service/
+    ports:
+      - "8083:8083"
+    depends_on:
+      - pg-database-service
+      - rabbit-mq-service
+  emlakjet-banner-service:
+    build: ./banner-service/
+    ports:
+      - "8082:8082"
+    depends_on:
+      - pg-database-service
+      - rabbit-mq-service
+
+  emlakjet-service:
+    build: ./emlakjet/
+    ports:
+      - "8081:8081"
+    depends_on:
+      - pg-database-service
+      - rabbit-mq-service
+
+  cloud-gateway-service:
+    build: ./cloud-gateway/
+    environment:
+      - SECRET_KEY=yesilyurt
+    ports:
+      - "8080:8080"
+    depends_on:
+      - pg-database-service
+      - rabbit-mq-service
